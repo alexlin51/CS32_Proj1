@@ -61,11 +61,11 @@ void clearScreen()  // will just write a newline in an Xcode output window
 {
     static const char* term = getenv("TERM");
     if (term == nullptr || strcmp(term, "dumb") == 0)
-        cout << endl;
+        std::cout << std::endl;
     else
     {
         static const char* ESC_SEQ = "\x1B[";  // ANSI Terminal esc seq:  ESC [
-        cout << ESC_SEQ << "2J" << ESC_SEQ << "H" << flush;
+        std::cout << ESC_SEQ << "2J" << ESC_SEQ << "H" << std::flush;
     }
 }
 
