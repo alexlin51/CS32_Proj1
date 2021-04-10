@@ -1,4 +1,3 @@
-# CS32_Proj1
+# CS 32 Projects and Homework
 
-Header File/Cpp File Organizaion  
-Small function implementation
+Here are some of the projects I work on!
