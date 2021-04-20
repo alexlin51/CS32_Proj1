@@ -1,0 +1,217 @@
+Alexander Lin 4052989701 
+
+Project 2 Report
+
+-----Doubly Linked List Description-----
+
+For my doubly linked list, I implemented it in a way such that we store a global head and tail pointer and an integer that denotes the current length of the list. Each node of the list will contain an internal value and 2  pointer to the next and previous nodes of the list. The head will always have a nullptr for the previous and the tail will always have a nullptr for the next. My list is not circular, nor does it use any dummy nodes. The list is ordered in decending order wheras the first node has the largest interal value. Note that I simply use the operator ">" to detemine what is larger or smaller. 
+
+Example of my empty Set:
+head = nullptr
+tail = nullptr
+m_length = 0
+
+Example of a set with 3 items:
+head = item1
+tail = item3
+m_length = 3
+
+item1:			
+m_item="a"
+prevNode= nullptr
+nextNode = item2
+
+item2:			
+m_item="b"
+prevNode= item1
+nextNode = item3
+
+item3:			
+m_item="c"
+prevNode= item2
+nextNode = nullptr
+
+Note that "a" > "b" > "c"
+
+
+-----Pseudocode-----
+
+Set Constructor:
+	Set list length to 0
+	Point head and tail to null because there is no node
+
+Set Destructor:
+	If no items in list:
+		Nothing to do
+	Otherwise:
+		Traverse nodes in list:
+			Delete this node
+			Jump to next node
+
+Set Copy Constructor:
+	Set the number of elements to the other items
+
+	Traversing throguh each node in other:
+		Make new node
+		Copy the data from the old node to new node
+		Connect this node to the previous and next node
+
+Set Equal Operator Override:
+	Make sure this object isn’t being set to itself:
+		If not, copy the right hand side to a temp variable
+		Swap the left hand side with that temp variable
+	Return itself
+
+Set Insert:
+	If this set is empty:
+		Create node and set value
+		Set the head and tail to this node
+		Set the length
+	
+	If value is not set:
+		Create new node
+		
+		If insert into head:
+			Set new node as head 
+			Pointer adjustments
+			Increment length and return
+		
+		Increment new pointer until insertion point:
+			Set the new node
+			Pointer adjustment
+			Increment length and return
+			
+		If tail:
+			Set tail pointer
+
+Set Erase:
+	If value in set:
+		Return false
+	
+	Iteration the pointer to the deletion point:
+		Adjust the pointers
+	
+	Decrement		
+	Return true
+
+Set Contains:
+	Iterate through the nodes:
+		Return if we find a matching node
+
+Set Get:
+	Ensure the index is within bounds
+	
+	Iterate temporary pointer until we reach index
+
+	Return the node values
+
+Set Swap:
+	Swap the number of items in this with other
+	Swap the head in this with other
+	Swap the tail in this with other
+
+Unite:
+	Copy contents of s1 into results
+	
+	For each element is s2:
+		Attempt to insert element into results
+		// This works because our implementation will not insert if value exists already.
+
+Difference:
+	If same set(Aliasing):
+		return empty set since no difference in same set
+
+	Copy contents of s1 into results1
+	
+	For each element in s2:
+		Attempt to delete the element from results1
+		// This works because if any similar elements will be deleted		
+
+	Copy contents of s2 into results2
+	
+	For each element in s1:
+		Attempt to delete the element from results2
+		// This works because if any similar elements will be deleted
+	
+	Unite the result1 and result2 into one vector
+
+
+-----Test Cases-----
+
+Basic Class Tests
+
+    Set ss;  	 // default constructor
+    assert(ss.size() == 0);        // test size on empty set
+    assert(ss.empty());            // test empty
+    assert(!ss.erase("test"));     // test a failure to remove on an empty set
+    assert(ss.insert("ccc"));	  // test insertion into empty set
+    assert(ss.size() == 1); 	// test if size is 1 after inserting 1 item
+    assert(!ss.empty()); 	// test if empty works on a set of size 1
+    assert(ss.erase("ccc"));  // test if erase works with only 1 element
+    assert(ss.size() == 0);        // test if we are back to empty list
+    assert(ss.empty());            // test empty
+    ss.insert("aaa");	    // inserting addition items
+    ss.insert("ccc")    
+    ss.insert("bbb");
+    ItemType x = "xxx";
+    assert(!ss.get(3, x) && x == "xxx");  // testing that x is unchanged because of indexing issue
+    assert(ss.get(1, x) && x == "bbb");	  // testing to see if get grabs the right value
+    assert(ss.contains("aaa")) // check if our contains still works
+    assert(ss.size() == 3); // test that size is working correctly with more than 1 items
+    assert(!ss.insert("aaa")); // make sure it doesn’t allow inserting something already in it
+
+    Set ss3;
+    x = "xxx"; 
+    ss3 = ss; // make sure operator= override works
+    assert(!ss.get(3, x) && x == "xxx");  // The following couple of tests are the same just to check if override worked properly.
+    assert(ss.get(1, x) && x == "bbb");	  
+    assert(ss.contains("aaa")) 
+    assert(ss.size() == 3); 
+    assert(!ss.insert("aaa"))
+  
+    assert(ss3.erase("aaa")); // check if removing works
+    ssert(ss.contains("aaa")); // make sure ss3 and ss are not connected to the same linked list
+
+Testing Addition Functions (Note that I did testing with unsigned long)
+    Set s1;
+    s1.insert(2);	// Inserting case in the project specs
+    s1.insert(8);
+    s1.insert(3);
+    s1.insert(9);
+    s1.insert(5);
+    Set s2;
+    s2.insert(6);
+    s2.insert(3);
+    s2.insert(8);
+    s2.insert(5);
+    s2.insert(10);
+   
+    Set Knitter;
+    Unite(s1,s2,Knitter) // Checking to see if Unite works
+    assert(Knitter.get(0, x)  &&  x == 10); // make sure get works when getting object 0
+    assert(Knitter.get(1, x)  &&  x == 9); // make sure get works when getting object 1
+    assert(Knitter.get(2, x)  &&  x == 8); // make sure get works when getting object 2
+    assert(Knitter.get(3, x)  &&  x == 6); // make sure get works when getting object 3
+    assert(Knitter.get(4, x)  &&  x == 5); // make sure get works when getting object 4
+    assert(Knitter.get(5, x)  &&  x == 3); // make sure get works when getting object 5
+    assert(Knitter.get(6, x)  &&  x == 2); // make sure get works when getting object 6
+  
+    Set Diff;
+    difference(s1,s2,Diff)
+    assert(Diff.get(0, x)  &&  x == 10); // make sure get works when getting object 0
+    assert(Diff.get(1, x)  &&  x == 9); // make sure get works when getting object 1
+    assert(Diff.get(2, x)  &&  x == 6); // make sure get works when getting object 2
+    assert(Diff.get(3, x)  &&  x == 2); // make sure get works when getting object 3
+
+    Knitter.swap(Diff) // Checking if swap works
+    assert(Diff.get(0, x)  &&  x == 10); // make sure get works when getting object 0
+    assert(Diff.get(1, x)  &&  x == 9); // make sure get works when getting object 1
+    assert(Diff.get(2, x)  &&  x == 8); // make sure get works when getting object 2
+    assert(Diff.get(3, x)  &&  x == 6); // make sure get works when getting object 3
+    assert(Diff.get(4, x)  &&  x == 5); // make sure get works when getting object 4
+    assert(Diff.get(5, x)  &&  x == 3); // make sure get works when getting object 5
+    assert(Diff.get(6, x)  &&  x == 2); // make sure get works when getting object 6
+    assert(Knitter.get(0, x)  &&  x == 10); // make sure get works when getting object 0
+    assert(Knitter.get(1, x)  &&  x == 9); // make sure get works when getting object 1
+    assert(Knitter.get(2, x)  &&  x == 6); // make sure get works when getting object 2
+    assert(Knitter.get(3, x)  &&  x == 2); // make sure get works when getting object 3 

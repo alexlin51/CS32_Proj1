@@ -1,4 +1,4 @@
-#include "newSet.h"
+#include "Set.h"
 #include <iostream>
 
 using namespace std;
@@ -14,7 +14,7 @@ Set::Set()
 Set::Set(const Set& other)
 {
     m_length = other.m_length;
-    
+
     // Empty Set case
     if (other.m_length == 0) {
         head = nullptr;
@@ -31,10 +31,10 @@ Set::Set(const Set& other)
     // Creates new nodes for L.L. until tail
     for (Node* T = other.head; T->nextNode != nullptr; T = T->nextNode) {
         Node* newNode = new Node;
-        
+
         temp->m_item = T->m_item;
         temp->nextNode = newNode;
-        newNode->prevNode = T;
+        newNode->prevNode = temp;
 
         temp = newNode;
     }
@@ -76,50 +76,6 @@ Set::~Set()
     }
 }
 
-
-void Set::dump() const {
-    cerr << "------------------------------" << endl;
-    cerr << "Set at: " << this << endl;
-    if (head == nullptr) {
-        cerr << "Head at: nullptr" << endl;
-    }
-    else {
-        cerr << "Head at: " << head << endl;
-    }
-
-    if (tail == nullptr) {
-        cerr << "Tail at: nullptr" << endl;
-    }
-    else {
-        cerr << "Tail at: " << tail << endl;
-    }
-    cerr << "n_items: " << m_length << endl << endl;
-
-    // L.L. Insides
-    for (Node* cNode = head; cNode != nullptr; cNode = cNode->nextNode) {
-        cerr << "Address: " << cNode;
-        cerr << "\nm_item: " << cNode->m_item;
-        if (cNode->prevNode == nullptr) {
-            cerr << "\nprevNode: nullptr";
-        }
-        else {
-            cerr << "\nprevNode: " << cNode->prevNode;
-        }
-
-        if (cNode->nextNode == nullptr) {
-            cerr << "\nnextNode: nullptr";
-        }
-        else {
-            cerr << "\nnextNode: " << cNode->nextNode;
-        }
-        cerr << endl << endl;
-    }
-    cerr << "--------------------" << endl;
-
-}
-
-
-
 bool Set::empty() const
 {
     return m_length == 0;
@@ -140,14 +96,14 @@ bool Set::insert(const ItemType& value)
 
         head = newNode;
         tail = newNode;
-        
+
         m_length = 1;
         return true;
     }
 
     if (contains(value)) {
         return false;
-    } 
+    }
     else {
         Node* newNode = new Node;
         newNode->m_item = value;
@@ -158,6 +114,7 @@ bool Set::insert(const ItemType& value)
             newNode->nextNode = head;
             head->prevNode = newNode;
             head = newNode;
+            m_length++;
             return true;
         }
 
@@ -166,7 +123,7 @@ bool Set::insert(const ItemType& value)
         while (temp->nextNode != nullptr && value < temp->nextNode->m_item) {
             temp = temp->nextNode;
         }
-        
+
         // we are now at the node in which we want to insert after.
         if (temp->nextNode == nullptr) {
             temp->nextNode = newNode;
@@ -174,7 +131,7 @@ bool Set::insert(const ItemType& value)
             tail = newNode;
             m_length++;
             return true;
-        } 
+        }
         else {
             Node* next = temp->nextNode;
             temp->nextNode = newNode;
@@ -189,35 +146,41 @@ bool Set::insert(const ItemType& value)
 
 bool Set::erase(const ItemType& value)
 {
-    for (Node* temp = head; temp != nullptr; head = head->nextNode) {
+    if (!contains(value)) {
+        return false;
+    }
+
+    // find the matching node value.
+    Node* temp = head;
+    for (; temp != nullptr; temp = temp->nextNode) {
         if (temp->m_item == value) {
-            // find the node to erase & adjust pointers
-            if (temp->prevNode == nullptr) {
-                head = head->nextNode;
-            }
-            else {
-                temp->prevNode->nextNode = temp->nextNode;
-            }
-
-            if (temp->nextNode == nullptr) {
-                tail = temp->prevNode;
-            }
-            else {
-                temp->nextNode->prevNode = temp->prevNode;
-            }
-
-            // decrement and delete
-            m_length--;
-            delete temp;
-            return true;
+            break;
         }
     }
-    return false;
+
+    if (temp->prevNode != nullptr) {
+        temp->prevNode->nextNode = temp->nextNode;
+    }
+    else {
+        head = temp->nextNode;
+    }
+ 
+    if (temp->nextNode != nullptr) {
+        temp->nextNode->prevNode = temp->prevNode;
+    }
+    else {
+        tail = temp->prevNode;
+    }
+
+    // decrement and delete
+    m_length--;
+    delete temp;
+    return true;
 }
 
-bool Set::contains(const ItemType& value)
+bool Set::contains(const ItemType& value) const
 {
-    for (Node* temp = head; temp != nullptr; head = head->nextNode) {
+    for (Node* temp = head; temp != nullptr; temp = temp->nextNode) {
         if (temp->m_item == value) {
             // Find the node with same value
             return true;
@@ -264,8 +227,40 @@ void Set::swap(Set& other)
 
 void unite(const Set& s1, const Set& s2, Set& result)
 {
+    // we can copy the list and insert values from other set into copied set.
+    // Our implementation will take care of repeated values.
+    result = s1;
+
+    for (int i = 0; i < s2.size(); i++) {
+        ItemType addendum;
+        s2.get(i, addendum);
+        result.insert(addendum);
+    }
 }
 
 void difference(const Set& s1, const Set& s2, Set& result)
 {
+    if (&s1 == &s2) {
+        Set empty;
+        result = empty;
+        return;
+    }
+
+    Set result1 = s1;
+    for (int i = 0; i < s2.size(); i++) {
+        ItemType toErase; 
+        s2.get(i, toErase);
+  
+        result1.erase(toErase); 
+    }
+
+    Set result2 = s2;
+    for (int i = 0; i < s1.size(); i++) {
+        ItemType toErase;
+        s1.get(i, toErase);
+
+        result2.erase(toErase);
+    }
+
+    unite(result1, result2, result);
 }

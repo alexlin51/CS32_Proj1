@@ -1,24 +1,24 @@
-#ifndef NEWSET
-#define NETSET
+#ifndef SET
+#define SET
 
 #include <string>
 
-using ItemType = unsigned long;
+using ItemType = std::string;
+// using ItemType = unsigned long;
 
 class Set
 {
 public:
-    Set();        
-    Set(const Set &other);
+    Set();
+    Set(const Set& other);
     Set& operator=(const Set& rhs);
     ~Set();
-    void dump() const;
 
-    bool empty() const; 
-    int size() const;   
+    bool empty() const;
+    int size() const;
     bool insert(const ItemType& value);
     bool erase(const ItemType& value);
-    bool contains(const ItemType& value);
+    bool contains(const ItemType& value) const;
     bool get(int i, ItemType& value) const;
     void swap(Set& other);
 private:
