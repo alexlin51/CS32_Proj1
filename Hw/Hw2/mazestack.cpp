@@ -47,7 +47,7 @@ bool pathExists(char maze[][10], int sr, int sc, int er, int ec) {
             cStack.push(Coord(currRow - 1, currCol));
             maze[currRow - 1][currCol] = 'e';
         }
-        if (currCol < MAXROW && maze[currRow][currCol + 1] == '.') {
+        if (currCol < MAXCOL && maze[currRow][currCol + 1] == '.') {
             cStack.push(Coord(currRow, currCol + 1));
             maze[currRow][currCol + 1] = 'e';
         }
