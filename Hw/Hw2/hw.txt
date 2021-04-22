@@ -1,0 +1,31 @@
+2. The first 12 coordinates popped off are:
+Popped: (3, 5)
+Popped: (3, 6)
+Popped: (3, 4)
+Popped: (2, 4)
+Popped: (1, 4)
+Popped: (1, 3)
+Popped: (1, 2)
+Popped: (1, 1)
+Popped: (2, 1)
+Popped: (3, 3)
+Popped: (4, 5)
+Popped: (5, 5)
+
+4. The first 12 coordinates popped off are:
+Popped: (3, 5)
+Popped: (4, 5)
+Popped: (3, 4)
+Popped: (3, 6)
+Popped: (5, 5)
+Popped: (3, 3)
+Popped: (2, 4)
+Popped: (6, 5)
+Popped: (5, 4)
+Popped: (1, 4)
+Popped: (7, 5)
+Popped: (5, 3)
+
+The two algorithms differ from each other in the order they search; the stack used depth first searching while the queue used breadth first.
+Because the stack accesses coordinate in a last in, first out fashion, we search the maze by running down a path until we reach a wall or endpoint, then we would continue traversing new paths from the last intersection. 
+Because the queue accesses coordinates in a first in, first out fashion, we move one step forward in all directions each iteration to explore branches/paths until the path reached a dead end.
