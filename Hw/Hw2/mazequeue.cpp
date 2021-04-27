@@ -71,7 +71,7 @@ int main()
     };
 
     if (pathExists(maze, 3, 5, 8, 8))
-        cout << "Solvable!" << endl;
+        cout << "Solvable!!" << endl;
     else
         cout << "Out of luck!" << endl;
 }
