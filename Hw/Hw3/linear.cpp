@@ -1,11 +1,3 @@
-#include <iostream>
-#include <string>
-
-using namespace std;
-
-bool somePredicate(string s) {
-	return s.empty();
-}
 // Return false if the somePredicate function returns false for at
 // least one of the array elements; return true otherwise.
 bool allTrue(const string a[], int n)
@@ -119,24 +111,4 @@ bool includes(const string a1[], int n1, const string a2[], int n2)
 	else {
 		return includes(a1 + 1, n1 - 1, a2, n2);
 	}
-}
-
-int main() {
-	string test[5] = { "", "a", "", "", "a" };
-	cout << firstFalse(test, 5) << endl;
-	cout << allTrue(test, 5) << endl;
-	cout << countFalse(test, 5) << endl;
-
-	string test2[5] = { "b", "z", "c", "d", "a" };
-	cout << indexOfLeast(test2, 5) << endl;
-
-	string main[7] = { "stan", "kyle", "cartman", "kenny", "kyle", "cartman", "butters" };
-	string mtest1[3] = { "kyle", "kenny", "butters" };
-	string mtest2[3] = { "kyle", "cartman", "cartman" };
-	string mtest3[3] = { "kyle", "butters", "kenny" };
-	string mtest4[3] = { "stan", "kenny", "kenny" };
-	cout << includes(main, 7, mtest1, 3) << endl;
-	cout << includes(main, 7, mtest2, 3) << endl;
-	cout << includes(main, 7, mtest3, 3) << endl;
-	cout << includes(main, 7, mtest4, 3) << endl;
 }

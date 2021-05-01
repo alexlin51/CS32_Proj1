@@ -1,8 +1,3 @@
-#include <string>
-#include <iostream>
-
-using namespace std;
-
 class Coord
 {
 public:
@@ -36,25 +31,4 @@ bool pathExists(char maze[][10], int sr, int sc, int er, int ec) {
         }
         return false;
     }
-}
-
-int main()
-{
-    char maze[10][10] = {
-                { 'X','X','X','X','X','X','X','X','X','X' },
-                { 'X','.','.','.','.','X','.','.','X','X' },
-                { 'X','.','X','X','.','X','X','.','.','X' },
-                { 'X','X','X','.','.','.','.','X','.','X' },
-                { 'X','.','X','X','X','.','X','X','X','X' },
-                { 'X','.','X','.','.','.','X','.','.','X' },
-                { 'X','.','.','.','X','.','X','.','.','X' },
-                { 'X','X','X','X','X','.','.','.','X','X' },
-                { 'X','.','.','.','.','.','X','.','.','X' },
-                { 'X','X','X','X','X','X','X','X','X','X' }
-    };
-
-    if (pathExists(maze, 3, 5, 8, 8))
-        cout << "Solvable!" << endl;
-    else
-        cout << "Out of luck!" << endl;
 }

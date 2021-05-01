@@ -1,8 +1,3 @@
-#include <iostream>
-#include <string>
-
-using namespace std;
-
 // Return the number of ways that all n2 elements of a2 appear
 // in the n1 element array a1 in the same order (though not
 // necessarily consecutively).  The empty sequence appears in a
@@ -25,6 +20,8 @@ int countIncludes(const string a1[], int n1, const string a2[], int n2)
 	}
 
 	if (a1[0] == a2[0]) {
+		// we want to remove first index from both
+		// we also want to remove it from just the first, in case we can create another ordering
 		return countIncludes(a1 + 1, n1 - 1, a2, n2) + countIncludes(a1 + 1, n1 - 1, a2 + 1, n2 - 1);
 	}
 	else {
@@ -97,5 +94,16 @@ void separate(string a[], int n, string separator,
 // If n <= 1, do nothing.
 void order(string a[], int n)
 {
-	return;  // This is not always correct.
+	if (n <= 1) {
+		return;
+	}
+	int fnl;
+	int fg;
+	// seperate from n
+	separate(a, n, *a,fnl, fg);
+	// order first half
+	order(a, fnl);
+	// order second half
+	order(a + fg, n - fg);
+	return;
 }
