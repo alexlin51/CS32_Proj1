@@ -1,1 +1,52 @@
 2. We are not able to insert the Coord object into our set due to not implementing a way to checking the <, >, == operators for a Coord object. When inserting any object into our Set, we first compare the object we want to insert with the objects already within the Set. This is to ensure that when adding new objects, the order of the Set remains decending. Because our Coord class is custom and doesn't provide an implementation of how to compare two Coord objects, when inserting into our Set, this will cause our program to throw an error.
+
+4b. If only given one parameter to pass down through the recursion, we would not be able to properly print the full path name. Deeper levels of the recursion would not be able to know their relative positions of the rest of the menu item paths. Given that we are supposed to implement this through recursion, the passing of the path name is crutial to properly printing out all possible paths. 
+
+5a. The time complexity of this algorithim is O(N^3) as there are 3 nested for loops that are all running from 0 to N. There are additional constant time operations such as addition, subractions, assignments, and comparison, but the higher order N is what we care about.
+
+	const int N = some value;
+	bool hasContacted[N][N];
+	... ============================================================================================== Total = O(N^3)
+	int numIntermediaries[N][N];
+	for (int i = 0; i < N; i++) <===================================================== O(N)
+	{
+	    numIntermediaries[i][i] = -1;  // the concept of intermediary
+				           // makes no sense in this case
+	    for (int j = 0; j < N; j++) <===================================================== O(N)
+	    {
+	        if (i == j)
+	            continue;
+	        numIntermediaries[i][j] = 0;
+	        for (int k = 0; k < N; k++) <===================================================== O(N)
+	        {
+	            if (k == i  ||  k == j)
+	                continue;
+		    if (hasContacted[i][k]  &&  hasContacted[k][j])
+	        	numIntermediaries[i][j]++;
+	        }
+	    }
+	}
+
+5b. The time complexity is still O(N^3) because i still reaches a value of N and there are still three nested loops. Although this algorithim does do greatly decrease the amount of operations compared to the original algorithm, the  constant multiple does not affect time complexity.
+
+	const int N = some value;
+	bool hasContacted[N][N];
+	... ============================================================================================== Total = O(N^3)
+	int numIntermediaries[N][N];
+	for (int i = 0; i < N; i++) <===================================================== O(N)
+	{
+	    numIntermediaries[i][i] = -1;  // the concept of intermediary
+				           // makes no sense in this case
+	    for (int j = 0; j < i; j++)  // loop limit is now i, not N  <===================================================== O(N)
+	    {
+	        numIntermediaries[i][j] = 0;
+	        for (int k = 0; k < N; k++) <===================================================== O(N)
+	        {
+	            if (k == i  ||  k == j)
+	                continue;
+		    if (hasContacted[i][k]  &&  hasContacted[k][j])
+	        	numIntermediaries[i][j]++;
+	        }
+	        numIntermediaries[j][i] = numIntermediaries[i][j];
+	    }
+	}
