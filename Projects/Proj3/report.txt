@@ -1,0 +1,187 @@
+1. Class Design
+
+class ScaffoldImpl
+{
+public:
+    ScaffoldImpl(int nColumns, int nLevels);
+    int cols() const;
+    int levels() const;
+    int numberEmpty() const;
+    int checkerAt(int column, int level) const;
+    void display() const;
+    bool makeMove(int column, int color);
+    int undoMove();
+private:
+    vector<vector<int>> n_board;
+    stack<int> n_moves;
+    int n_remaining;
+    int n_col;
+    int n_row;
+};
+
+I stored a vector of vectors as a representation of the board. I held a stack to track which moves were taken. As a side note, I realized that only tracking a column number would suffice. I also had a member called n_remaining to keep track of the number of empty spots on the board. Lastly, we have members n_col and n_row to track the number of rows and columns on the board. 
+
+The constructor set the n_col, n_row, and n_remaining members while creating a n_col by n_row vector of vectors populated with VACANT spots.
+The cols() and levels() and numberEmpty() methods trivially stores our respective member values.
+The checkerAt(c,l) method returns the c-1 and l-1 position on our board. We subtract 1 due to the 1 based indexing. 
+The display() method iterates through the levels backwards and the columns as we output the board's status.
+The makeMove() method checks a column, at the first VACANT position, it will populate it with the color and return true. If there are no vacant positions, it will return false. If a move is made, we decrement the n_remaining and add the move to our n_moves stack.
+The undoMove() method pops the last move/column off the stack and removes the last non-VACANT piece from the column. We then increment the n_remaining.
+
+
+class GameImpl
+{
+public:
+    GameImpl(int nColumns, int nLevels, int N, Player* red, Player* black);
+    bool completed(int& winner) const;
+    bool takeTurn();
+    void play();
+    int checkerAt(int c, int r) const;
+private:
+    Scaffold* n_scaf;
+    Player* red_p;
+    Player* black_p;
+    int turn;
+    int n;
+};
+
+For the GameImpl class, I found that the only members I needed was a pointer to a scaffold, a pointer to the red and black player objects, a variable that tracks who's turn it was, and a variable to represent the n value for the connect n.
+
+The constructor intializes scaffold object and points our pointers while also ensuring that member variables are intialized properly.
+The completed() method will scan our scaffold vertically, horizontally, and diagonally (bottom left -> top right and top left -> bottom right) and check for any consecutive red or black pieces. If there are n consecutive pieces, we set the winner variable to the winner and return true. If there is a unfinished game, we will return false. If there is a tie game, we will return true while setting the winner variable to TIE_GAME. (Pseudocode for win checking located below)
+The takeTurn() method lets the current player's turn choose a column and then take the move. Then we update the players turn to the other player.
+The play() method rotates turns between the two players and output messages to improve playability. It also checks every turn if the game is completed, if so, then we output the winner.
+The checkerAt() method calls the checkerAt() method within the Scaffold classes and returns the item at the indicated column and level of our board.
+
+
+class Player
+
+The isInteractive() method allowed me to add a virtual method that returns true for the HumanPlayer class as it is the only class that is interactive.
+
+The HumanPlayerImpl::chooseMove() method simply prompts player to enter a column for their turn. If an invalid column is entered, we will reprompt for another selection.
+The BadPlayerImpl::chooseMove() method selects the first column going left to right that has a VACANT position. 
+Helper Functions:
+validCol() function takes a column number and returns a boolean. We simply iterate through the levels of a given column and return true if a VACANT position is found. Otherwise we return false.
+bestMove() function takes a vector of numbers and returns the index of the largest number.
+winningResult() function checks to see if a the board has a winner. If the winner matches the color input, then we return true while setting results to 1. If the winner is the other color, we return true while setting results to -1. It there is a tie, we return true while setting results to TIE_GAME. Otherwise, we return false without updating winner variable. (Pseudocode for win checking located below)
+The BadPlayerImpl::chooseMove() follows the algorithm provided in project specifications. (More explaination below)
+
+
+Win Checking Algorithm:
+// vertical check
+for column in board
+	counter reset to 0
+	prev tracker intiated
+	for levels in board
+		if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+
+// horizontal check
+for level in board
+	counter reset to 0
+	prev tracker intiated
+	for column in board
+		if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+
+// Top Left -> Bottom Right Diagonal Check
+// first loop checks upper right triangle of board
+for column in board 
+	counter reset to 0
+	prev tracker intiated
+	reset counter and prev
+	while within in board
+		 if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+		increment column
+		decrement level
+// second loop checks the lower left triangle of board
+for level in board
+	counter reset to 0
+	prev tracker intiated
+	reset counter and prev
+	while within in board
+		 if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+		increment column
+		decrement level	
+
+// Bottom Left -> Top Right Diagonal Check
+// first loop checks the lower righttriangle of board
+for row in board 
+	counter reset to 0
+	prev tracker intiated
+	reset counter and prev
+	while within in board
+		 if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+		increment column
+		increment level
+// second loop checks the upper left triangle of board
+for column in board
+	counter reset to 0
+	prev tracker intiated
+	reset counter and prev
+	while within in board
+		 if checker at (column, level) is not the same as prev
+			counter set to 1
+			prev set to item at (column, level)
+		else the item is same as prev
+			counter increment
+		if counter is n
+			set winner and return true
+		increment column
+		increment level	
+
+if there are possible plays
+	return false
+else
+	set tie game and return true
+
+
+
+SmartPlayer ChooseMove Explaination:
+I allowed for my chooseMove to call on a recursive function called smartChoose. This takes in a scaffold, N, color of player, column address, value address, computer boolean, and recursive depth. I utilized the column address and value address to set variables outside of function. 
+This is found within chooseMove:
+ int col;
+ int val;
+ smartChoose(s, N, color, col, val, true, 1);
+ return col;
+Our smartChoose hopefully should find the optimal choice and set col variable, then we return the selected col. 
+The smartChoose function recreates the board scaffold and tests every possible move. In order to use the same function for bestHumanMove and bestComputerMove, I send in the true boolean to represent the computer's turns. Every recursive call flips the boolean so that our function knows to perform the bestHumanMoves at every other level.
+In following the provided algorithm structure, I test every possible column while updating and undoing the scaffold after every test. I keep track of the outputs in a vector called results. Furthermore, I added the ability for this function to make choices based of how soon a possible win can be achieved by a setting loss values to "999(Big Number) - level". As we can see in the code, every recursive call gets a level+1 added to it so that we are able to keep track of which possible moves are sooner than others. After recursivly checking every single possible move, we simply return the largest value within our tracking vector as that number is our "best" choice. 
+
+Notes about program:
+The SmartPLayer ChooseMove function was definitely the hard part to code up. It was difficult to really visualize how the recursive function looks at every possibility. Also, adding the depth tracking was a fun challenge to code up as well. The main inefficiency is that the program takes a while to look through every possible move. For a larger scaffold, this can take a lot of time. Aside from that, this was a fun project!
+
+
+
+
+
+
+

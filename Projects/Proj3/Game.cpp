@@ -9,13 +9,13 @@ using namespace std;
 
 class GameImpl
 {
-  public:
-    GameImpl(int nColumns, int nLevels, int N, Player* red, Player* black); 
-    bool completed(int& winner) const; 
-    bool takeTurn(); 
-    void play(); 
+public:
+    GameImpl(int nColumns, int nLevels, int N, Player* red, Player* black);
+    bool completed(int& winner) const;
+    bool takeTurn();
+    void play();
     int checkerAt(int c, int r) const;
-  private:
+private:
     Scaffold* n_scaf;
     Player* red_p;
     Player* black_p;
@@ -41,8 +41,8 @@ bool GameImpl::completed(int& winner) const
     int prev = -2;
     for (int i = 0; i != n_scaf->cols(); i++) {
         for (int j = 0; j != n_scaf->levels(); j++) {
-            if (prev != n_scaf->checkerAt(i, j)) {
-                prev = n_scaf->checkerAt(i, j);
+            if (prev != n_scaf->checkerAt(i +1, j +1 )) {
+                prev = n_scaf->checkerAt(i +1 , j + 1);
                 count = 1;
             }
             else {
@@ -62,8 +62,8 @@ bool GameImpl::completed(int& winner) const
     // Hortizontal Check
     for (int i = 0; i != n_scaf->levels(); i++) {
         for (int j = 0; j != n_scaf->cols(); j++) {
-            if (prev != n_scaf->checkerAt(j, i)) {
-                prev = n_scaf->checkerAt(j, i);
+            if (prev != n_scaf->checkerAt(j+1, i+1)) {
+                prev = n_scaf->checkerAt(j+1, i+1);
                 count = 1;
             }
             else {
@@ -83,10 +83,10 @@ bool GameImpl::completed(int& winner) const
     // TL -> BR Diagonal Check
     for (int i = 0; i != n_scaf->cols(); i++) {
         int col = i;
-        int row = 0;
-        while (row < n_scaf->levels() && col < n_scaf->cols()) {
-            if (prev != n_scaf->checkerAt(col, row)) {
-                prev = n_scaf->checkerAt(col, row);
+        int row = n_scaf->levels() -1;
+        while (row >= 0 && col < n_scaf->cols()) {
+            if (prev != n_scaf->checkerAt(col+1, row+1)) {
+                prev = n_scaf->checkerAt(col+1, row+1);
                 count = 1;
             }
             else {
@@ -99,17 +99,17 @@ bool GameImpl::completed(int& winner) const
                 }
             }
             col += 1;
-            row += 1;
+            row -= 1;
         }
         count = 0;
         prev = -2;
     }
-    for (int i = 1; i != n_scaf->levels(); i++) {
+    for (int i = n_scaf->levels() - 2; i >= 0; i--) {
         int row = i;
         int col = 0;
-        while (row < n_scaf->levels() && col < n_scaf->cols()) {
-            if (prev != n_scaf->checkerAt(col, row)) {
-                prev = n_scaf->checkerAt(col, row);
+        while (row >= 0 && col < n_scaf->cols()) {
+            if (prev != n_scaf->checkerAt(col+1, row+1)) {
+                prev = n_scaf->checkerAt(col+1, row+1);
                 count = 1;
             }
             else {
@@ -122,7 +122,7 @@ bool GameImpl::completed(int& winner) const
                 }
             }
             col += 1;
-            row += 1;
+            row -= 1;
         }
         count = 0;
         prev = -2;
@@ -132,9 +132,9 @@ bool GameImpl::completed(int& winner) const
     for (int i = 0; i != n_scaf->levels(); i++) {
         int row = i;
         int col = 0;
-        while (row >= 0 && col < n_scaf->cols()) {
-            if (prev != n_scaf->checkerAt(col, row)) {
-                prev = n_scaf->checkerAt(col, row);
+        while (row < n_scaf->levels() && col < n_scaf->cols()) {
+            if (prev != n_scaf->checkerAt(col+1, row+1)) {
+                prev = n_scaf->checkerAt(col+1, row+1);
                 count = 1;
             }
             else {
@@ -147,7 +147,7 @@ bool GameImpl::completed(int& winner) const
                 }
             }
             col += 1;
-            row -= 1;
+            row += 1;
         }
         count = 0;
         prev = -2;
@@ -155,9 +155,9 @@ bool GameImpl::completed(int& winner) const
     for (int i = 1; i != n_scaf->cols(); i++) {
         int row = 0;
         int col = i;
-        while (row >= 0 && col < n_scaf->cols()) {
-            if (prev != n_scaf->checkerAt(col, row)) {
-                prev = n_scaf->checkerAt(col, row);
+        while (row < n_scaf->levels() && col < n_scaf->cols()) {
+            if (prev != n_scaf->checkerAt(col+1, row+1)) {
+                prev = n_scaf->checkerAt(col+1, row+1);
                 count = 1;
             }
             else {
@@ -170,7 +170,7 @@ bool GameImpl::completed(int& winner) const
                 }
             }
             col += 1;
-            row -= 1;
+            row += 1;
         }
         count = 0;
         prev = -2;
@@ -194,13 +194,19 @@ bool GameImpl::takeTurn()
         return false;
     }
     if (turn == RED) {
+        if (red_p->isInteractive()) {
+            cout << "Please choose a column" << "(1-" << n_scaf->cols() << ") " << "for your next move." << endl;
+        }
         col = red_p->chooseMove(*n_scaf, n, RED);
-        n_scaf->makeMove(col, turn);
+        n_scaf->makeMove(col, RED);
         turn = BLACK;
     }
     else if (turn == BLACK) {
+        if (black_p->isInteractive()) {
+            cout << "Please choose a column" << "(1-" << n_scaf->cols() << ") " << "for your next move." << endl;
+        }
         col = black_p->chooseMove(*n_scaf, n, BLACK);
-        n_scaf->makeMove(col, turn);
+        n_scaf->makeMove(col, BLACK);
         turn = RED;
     }
     return true;
@@ -211,16 +217,18 @@ void GameImpl::play()
     int win;
     while (!completed(win)) {
         if (turn == RED) {
-            cout << "Player Red's turn" << endl;
+            cout << red_p->name() << "'s turn" << endl;
         }
         else if (turn == BLACK) {
-            cout << "Player Black's turn" << endl;
+            cout << black_p->name() << "'s turn" << endl;
         }
         takeTurn();
         n_scaf->display();
-        cout << " " << endl;
-        cout << "Press Enter to continue..." << endl;
-        cin.get();
+        if (!completed(win)) {
+            cout << " " << endl;
+            cout << "Press Enter to continue..." << endl;
+            cin.get();
+        }
     }
 
     string player;
@@ -228,10 +236,10 @@ void GameImpl::play()
     if (completed(hold)) {
         switch (hold) {
         case RED:
-            player = "Red";
+            player = red_p->name();
             break;
         case BLACK:
-            player = "Black";
+            player = black_p->name();
             break;
         case TIE_GAME:
             player = "TIE";
@@ -245,16 +253,15 @@ void GameImpl::play()
     if (player == "TIE") {
         cout << "Tie game!! Give it a go again and see who wins!" << endl;
     }
-    else if(player == "Red" || player == "Black") {
-        cout << "The winner of the game is player " << player << "!" << endl;
+    else {
+        cout << "The winner of the game is " << player << "!" << endl;
     }
 }
 
 int GameImpl::checkerAt(int c, int r) const
 {
-    // Notes that c,r starts on 1 for this function
     return n_scaf->checkerAt(c, r);
-} 
+}
 
 //******************** Game functions *******************************
 
@@ -265,12 +272,12 @@ Game::Game(int nColumns, int nLevels, int N, Player* red, Player* black)
 {
     m_impl = new GameImpl(nColumns, nLevels, N, red, black);
 }
- 
+
 Game::~Game()
 {
     delete m_impl;
 }
- 
+
 bool Game::completed(int& winner) const
 {
     return m_impl->completed(winner);
@@ -285,77 +292,9 @@ void Game::play()
 {
     m_impl->play();
 }
- 
+
 int Game::checkerAt(int c, int r) const
 {
     return m_impl->checkerAt(c, r);
 }
 
-
-int main() {
-    /*
-    BadPlayer bp1("Bart");
-    BadPlayer bp2("Homer");
-    Game g(4, 3, 3, &bp1, &bp2);
-    g.play();
-    */
-    
-    BadPlayer bp("Homer");
-    SmartPlayer hp("Marge");
-    Game g(4, 3, 3, &bp, &hp);
-    g.play();
-    
-
-    /*
-    const int N = 4;
-    Scaffold s(3, 2);
-    s.makeMove(2, RED);
-    s.makeMove(1, BLACK);
-    s.makeMove(1, RED);
-    s.display();
-    //  |R| | |
-    //  |B|R| |
-    //  +-+-+-+
-    s.undoMove();
-    s.display();
-    //  | | | |
-    //  |B|R| |
-    //  +-+-+-+
-    s.undoMove();
-    s.display();
-    //  | | | |
-    //  | |R| |
-    //  +-+-+-+
-
-    BadPlayer a("Alex");
-    s.makeMove(a.chooseMove(s, N, RED), RED);
-    s.makeMove(a.chooseMove(s, N, BLACK), BLACK);
-    s.makeMove(a.chooseMove(s, N, RED), RED);
-    s.makeMove(a.chooseMove(s, N, BLACK), BLACK);
-    s.makeMove(a.chooseMove(s, N, RED), RED);
-    s.display();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.display();
-
-    HumanPlayer b("Emi");
-    s.makeMove(b.chooseMove(s, N, BLACK), BLACK);
-    s.makeMove(b.chooseMove(s, N, RED), RED);
-    s.makeMove(b.chooseMove(s, N, BLACK), BLACK);
-    s.makeMove(b.chooseMove(s, N, RED), RED);
-    s.makeMove(b.chooseMove(s, N, RED), RED);
-    s.display();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.undoMove();
-    s.display();
-    */
-
-
-
-}

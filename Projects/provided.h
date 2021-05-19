@@ -12,36 +12,36 @@ class ScaffoldImpl;
 
 class Scaffold
 {
-  public:
-    Scaffold(int nColumns, int nLevels); 
-    ~Scaffold(); 
-    Scaffold(const Scaffold& other); 
-    Scaffold& operator=(const Scaffold& rhs); 
+public:
+    Scaffold(int nColumns, int nLevels);
+    ~Scaffold();
+    Scaffold(const Scaffold& other);
+    Scaffold& operator=(const Scaffold& rhs);
     int cols() const;
     int levels() const;
     int numberEmpty() const;
-    int checkerAt(int column, int level) const; 
-    void display() const; 
-    bool makeMove(int column, int color); 
-    int undoMove(); 
-  private:
+    int checkerAt(int column, int level) const;
+    void display() const;
+    bool makeMove(int column, int color);
+    int undoMove();
+private:
     ScaffoldImpl* m_impl;
 };
 
 class Player
 {
-  public:
+public:
     Player(std::string nm) : m_name(nm) {}
     virtual ~Player() {}
     std::string name() const { return m_name; };
     virtual bool isInteractive() const { return false; }
     virtual int chooseMove(const Scaffold& s, int N, int color) = 0;
-      // We prevent any kind of Player object from being copied or assigned by
-      // making the copy constructor and assignment operator unavailable in
-      // the base class (and thus in any derived class).
+    // We prevent any kind of Player object from being copied or assigned by
+    // making the copy constructor and assignment operator unavailable in
+    // the base class (and thus in any derived class).
     Player(const Player& other) = delete;
     Player& operator=(const Player& other) = delete;
-  private:
+private:
     std::string m_name;
 };
 
@@ -49,12 +49,12 @@ class HumanPlayerImpl;
 
 class HumanPlayer : public Player
 {
-  public:
+public:
     HumanPlayer(std::string nm);
     virtual ~HumanPlayer();
     virtual bool isInteractive() const { return true; }
     virtual int chooseMove(const Scaffold& s, int N, int color);
-  private:
+private:
     HumanPlayerImpl* m_impl;
 };
 
@@ -62,11 +62,11 @@ class BadPlayerImpl;
 
 class BadPlayer : public Player
 {
-  public:
+public:
     BadPlayer(std::string nm);
     virtual ~BadPlayer();
     virtual int chooseMove(const Scaffold& s, int N, int color);
-  private:
+private:
     BadPlayerImpl* m_impl;
 };
 
@@ -74,11 +74,11 @@ class SmartPlayerImpl;
 
 class SmartPlayer : public Player
 {
-  public:
+public:
     SmartPlayer(std::string nm);
     virtual ~SmartPlayer();
     virtual int chooseMove(const Scaffold& s, int N, int color);
-  private:
+private:
     SmartPlayerImpl* m_impl;
 };
 
@@ -86,18 +86,18 @@ class GameImpl;
 
 class Game
 {
-  public:
-    Game(int nColumns, int nLevels, int N, Player* red, Player* black); 
+public:
+    Game(int nColumns, int nLevels, int N, Player* red, Player* black);
     ~Game();
-    bool completed(int& winner) const; 
-    bool takeTurn(); 
-    void play(); 
+    bool completed(int& winner) const;
+    bool takeTurn();
+    void play();
     int checkerAt(int c, int r) const;
-      // We prevent a Game object from being copied or assigned by
-      // making the copy constructor and assignment operator unavailable.
+    // We prevent a Game object from being copied or assigned by
+    // making the copy constructor and assignment operator unavailable.
     Game(const Game& other) = delete;
     Game& operator=(const Game& other) = delete;
-  private:
+private:
     GameImpl* m_impl;
 };
 
@@ -114,16 +114,16 @@ class Game
 
 class AlarmClock
 {
-  public:
+public:
     AlarmClock(int ms)
-     : m_timedOut(false), m_isRunning(true)
+        : m_timedOut(false), m_isRunning(true)
     {
         m_alarmClockFuture = std::async([=]() {
-            for (int k = 0; k < ms  &&  m_isRunning; k++)
+            for (int k = 0; k < ms && m_isRunning; k++)
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             if (m_isRunning)
                 m_timedOut = true;
-        });
+            });
     }
 
     ~AlarmClock()
@@ -139,7 +139,7 @@ class AlarmClock
 
     AlarmClock(const AlarmClock&) = delete;
     AlarmClock& operator=(const AlarmClock&) = delete;
-  private:
+private:
     std::atomic<bool> m_isRunning;
     std::atomic<bool> m_timedOut;
     std::future<void> m_alarmClockFuture;

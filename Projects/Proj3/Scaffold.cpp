@@ -10,17 +10,16 @@ using namespace std;
 
 class ScaffoldImpl
 {
-  public:
-    ScaffoldImpl(int nColumns, int nLevels); 
-    ScaffoldImpl(const ScaffoldImpl& other);
+public:
+    ScaffoldImpl(int nColumns, int nLevels);
     int cols() const;
     int levels() const;
     int numberEmpty() const;
-    int checkerAt(int column, int level) const; 
-    void display() const; 
-    bool makeMove(int column, int color); 
-    int undoMove(); 
-  private:
+    int checkerAt(int column, int level) const;
+    void display() const;
+    bool makeMove(int column, int color);
+    int undoMove();
+private:
     vector<vector<int>> n_board;
     stack<int> n_moves;
     int n_remaining;
@@ -47,23 +46,14 @@ ScaffoldImpl::ScaffoldImpl(int nColumns, int nLevels)
     }
 }
 
-ScaffoldImpl::ScaffoldImpl(const ScaffoldImpl& other)
-{
-    n_board = other.n_board;
-    n_remaining = other.n_remaining;
-    n_col = other.n_col;
-    n_row = other.n_row;
-    n_moves = other.n_moves;
-}
-
 int ScaffoldImpl::cols() const
 {
-    return n_col;  
+    return n_col;
 }
 
 int ScaffoldImpl::levels() const
 {
-    return n_row;  
+    return n_row;
 }
 
 int ScaffoldImpl::numberEmpty() const
@@ -73,7 +63,9 @@ int ScaffoldImpl::numberEmpty() const
 
 int ScaffoldImpl::checkerAt(int column, int level) const
 {
-    return n_board[column][level];  
+    column -= 1;
+    level -= 1;
+    return n_board[column][level];
 }
 
 void ScaffoldImpl::display() const
@@ -81,15 +73,15 @@ void ScaffoldImpl::display() const
     for (int i = n_row; i != 0; i--) {
         for (int j = 0; j != n_col; j++) {
             cout << '|';
-            switch (n_board[j][i-1]) {
-                case BLACK:
-                    cout << 'B';
-                    break;
-                case RED:
-                    cout << 'R';
-                    break;
-                default:
-                    cout << ' ';
+            switch (n_board[j][i - 1]) {
+            case BLACK:
+                cout << 'B';
+                break;
+            case RED:
+                cout << 'R';
+                break;
+            default:
+                cout << ' ';
             }
         }
         cout << '|' << endl;
@@ -102,23 +94,24 @@ void ScaffoldImpl::display() const
 
 bool ScaffoldImpl::makeMove(int column, int color)
 {
+    column -= 1;
     if (column < 0 || column > n_col - 1) {
         return false;
     }
-    column -= 1;
-    if (color == RED || color == BLACK) {}
+    if (color == RED || color == BLACK) {
+        for (int i = 0; i != n_row; i++) {
+            if (n_board[column][i] == VACANT) {
+                n_board[column][i] = color;
+                n_moves.push(column);
+                n_remaining -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
     else {
         return false;
     }
-    for (int i = 0; i != n_row; i++) {
-        if (n_board[column][i] == VACANT) {
-            n_board[column][i] = color;
-            n_moves.push(column);
-            n_remaining -= 1;
-            return true;
-        }
-    }
-    return false;
 }
 
 int ScaffoldImpl::undoMove()
@@ -151,17 +144,17 @@ Scaffold::Scaffold(int nColumns, int nLevels)
 {
     m_impl = new ScaffoldImpl(nColumns, nLevels);
 }
- 
+
 Scaffold::~Scaffold()
 {
     delete m_impl;
 }
- 
+
 Scaffold::Scaffold(const Scaffold& other)
 {
     m_impl = new ScaffoldImpl(*other.m_impl);
 }
- 
+
 Scaffold& Scaffold::operator=(const Scaffold& rhs)
 {
     if (this != &rhs)
@@ -171,7 +164,7 @@ Scaffold& Scaffold::operator=(const Scaffold& rhs)
     }
     return *this;
 }
- 
+
 int Scaffold::cols() const
 {
     return m_impl->cols();
@@ -191,17 +184,17 @@ int Scaffold::checkerAt(int column, int level) const
 {
     return m_impl->checkerAt(column, level);
 }
- 
+
 void Scaffold::display() const
 {
     m_impl->display();
 }
- 
+
 bool Scaffold::makeMove(int column, int color)
 {
     return m_impl->makeMove(column, color);
 }
- 
+
 int Scaffold::undoMove()
 {
     return m_impl->undoMove();
