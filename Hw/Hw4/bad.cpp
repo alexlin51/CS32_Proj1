@@ -25,7 +25,7 @@ void removeBad(list<Movie*>& li)
 	const int CUTOFF = 55;
 	for (list<Movie* >::iterator it = li.begin(); it != li.end();) {
 		if ((*it)->rating() < CUTOFF) {
-			destroyedOnes.push_back((*it)->rating());
+			delete* it;
 			it = li.erase(it);
 		}
 		else {

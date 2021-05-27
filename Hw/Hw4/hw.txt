@@ -50,3 +50,96 @@
 	        numIntermediaries[j][i] = numIntermediaries[i][j];
 	    }
 	}
+
+6a. The worse case time complexity is O(N^2) because the for loop is called N times, with the get or insert functions also requiring at most N iterations through a set of N length.
+
+	void unite(const Set& set1, const Set& set2, Set& result)
+	{
+    		const Set* sp = &set2; 
+    		if (&result == &set1){
+        		if (&result == &set2)
+                		return;
+    		}
+    		else if (&result == &set2)
+        		sp = &set1; 
+    		else
+    		{
+        		result = set1;
+        		if (&set1 == &set2)
+            			return;
+    		}
+    		for (int k = 0; k < sp->size(); k++) <===================================================== O(N)
+    		{
+        		ItemType v;
+        		sp->get(k, v); <===================================================== O(N/2)
+        		result.insert(v); <===================================================== O(N)
+    		}
+	}
+
+6b. Within this new unite fuction, the longest process would be when we sort the 2N vector of nodes. So the time complexity of this algorithm is O(N LogN).
+
+	void Set::unite(const Set& set1, const Set& set2)
+	{
+    		vector<ItemType> v;
+
+      		// copy all items into v;
+    		for (Node* p1 = set1.m_head->m_next; p1 != set1.m_head; p1 = p1->m_next)  <===================================================== O(N)
+        		v.push_back(p1->m_value);
+    		for (Node* p2 = set2.m_head->m_next; p2 != set2.m_head; p2 = p2->m_next)  <===================================================== O(N)
+        		v.push_back(p2->m_value);
+
+      		// sort v using an O(N log N) algorithm  <===================================================== O(N LogN)
+	    	sort(v.begin(), v.end());
+
+	        // delete result nodes (other than the dummy node)
+    		while (m_head->m_next != m_head) <===================================================== O(N)
+        		doErase(m_head->m_next);
+
+	        // copy unique items from v into result
+    		for (size_t k = 0; k < v.size(); k++) <===================================================== O(N)
+    		{
+        		if (k == 0  ||  v[k] != v[k-1])  // add non-duplicates
+			      insertBefore(m_head, v[k]); <=============================================O(1)
+    		}
+
+	      // v is destroyed when function returns
+	}
+
+6c. Within this new unite fuction, the longest process would be iterating through N elements of a set. So the time complexity of this algorithm is O(N).
+
+	void Set::unite(const Set& set1, const Set& set2)
+	{
+		const Set* sp = &set2; 
+		if (this == &set1)
+   		{
+        		if (this == &set2)
+                		return;
+    		}
+    		else if (this == &set2)
+        		sp = &set1;
+    		else
+    		{
+        		*this = set1;
+        		if (&set1 == &set2)
+        	    	return;
+    		}
+    		Node* p1 = m_head->m_next;
+    		Node* p2 = sp->m_head->m_next;
+    		while (p1 != m_head  &&  p2 != sp->m_head) <===================================================== O(N)
+    		{
+        		if (p1->m_value < p2->m_value)
+            			p1 = p1->m_next;
+        		else
+        		{
+            			if (p1->m_value > p2->m_value)
+                			insertBefore(p1, p2->m_value); <=============================================O(1)
+            			else
+                			p1 = p1->m_next;
+            			p2 = p2->m_next;
+        		}
+    		}
+    		for ( ; p2 != sp->m_head; p2 = p2->m_next) <===================================================== O(N)
+        		insertBefore(m_head, p2->m_value); <=============================================O(1)
+	}
+
+
