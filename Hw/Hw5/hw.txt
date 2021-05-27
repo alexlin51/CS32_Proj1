@@ -1,0 +1,115 @@
+1a.
+             50
+           /    \
+         20      60
+       /    \      \
+     10      40     70
+      \     /      /  \
+       15  30    65   80
+           / \        /
+         25   31    79
+
+1b. 
+Preorder: 50 20 10 15 40 30 25 31 60 70 65 80 79
+Inorder: 10 15 20 25 30 31 40 50 60 65 70 79 80
+Postorder: 15 10 25 31 30 40 20 65 79 80 70 60 50 
+
+1c. 
+I chose to replace the deleted node with the in-order predecessor node.
+
+Remove 30:
+             50
+           /    \
+         20      60
+       /    \      \
+     10      40     70
+      \     /      /  \
+       15  25    65   80
+            \        /
+             31    79
+
+
+Remote 20:
+             50
+           /    \
+         15      60
+       /    \      \
+     10      40     70
+            /      /  \
+           25    65   80
+            \        /
+             31    79
+
+2a. 
+struct Node {
+	int val;
+	Node* parent;
+	Node* left;
+	Node* right;
+};
+
+2b. 
+I assume the class that holds the BST has a member pointer that points to the root. I have a insertNode function that uses recurInsert to recursivly traverse the BST and insert the new value correctly.
+
+function recurInsert(value, node){
+	if value equal to the value in node, then do nothing and return;
+
+	if value is smaller than node value{
+		if given node left child exists{
+			 call recurInsert(value, left node child);
+			 return;
+		}
+		else if no left child {
+			create new node and point given node's left child pointer to new node; 
+			return;
+		}
+	}
+	else if value is larger than node value{
+		if given node right child exists{
+			 call recurInsert(value, right node child);
+			 return;
+		}
+		else if no rughtchild {
+			create new node and point given node's right child pointer to new node; 
+			return;
+		}
+	}
+}
+
+function insertNode(value){
+	if root is empty, then create a new node with value and set this node as the root to tree class and return;
+	
+	call recurInsert(value, root);
+	return;			
+}
+
+3a. 
+              9
+           /    \
+	  5      7
+         / \    / \
+        4   1  2   6
+
+3b. [9,5,7,4,1,2,6]
+
+3c. [7,5,6,4,1,2]
+           
+4a. O(C + S)
+
+4b. O(logC + S)
+
+4c. O(logC + logS)
+
+4d. O(1 + logS) => O(logS)
+
+4e. O(1 + 1) => O(1)
+
+4f. O(logC + S)
+
+4g. O(SlogS)
+
+4h. O(ClogS)
+
+
+
+
