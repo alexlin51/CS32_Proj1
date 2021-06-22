@@ -2,6 +2,7 @@
 #include <iostream>
 #include <functional>
 #include <cassert>
+#include <cctype>
 
 using namespace std;
 
@@ -155,63 +156,147 @@ void Table::find(std::string key, std::vector<std::vector<std::string>>& records
 
 int Table::select(std::string query, std::vector<std::vector<std::string>>& records) const
 {
-	for (int i = 0; i != BUCKETS; i++) {
-		if (m_dict[i].size() != 0) {
-			cerr << m_dict[i].size() << endl;
+	if (!good()) {
+		return false;
+	}
+
+	StringParser input(query);
+	string s;
+	int count = 0;
+	vector<string> tracker;
+	vector<vector<string>> output;
+	string oper[13] = { "<","<=",">",">=","!=","==","=","LT","LE","GT","GE","NE","EQ" };
+
+	while (input.getNextField(s)) {
+		tracker.push_back(s);
+		count += 1;
+	}
+
+	// Validations
+	// Correct number of inputs
+	if (tracker.size() != 3) {
+		records = output;
+		return -1;
+	}
+	// Checking Column Names
+	bool name = false;
+	int col = -1;
+	for (int i = 0; i != m_colNames.size(); i++) {
+		if (m_colNames[i] == tracker[0]) {
+			name = true;
+			col = i;
+			break;
 		}
 	}
-	return 0;
-}
+	if (!name) {
+		records = output;
+		return -1;
+	}
+	// checking comparison operator
+	bool sign = false;
+	bool num = false;
+	for (auto& x : tracker[1]) {
+		x = toupper(x);
+	}
+	for (int i = 0; i != sizeof(oper); i++) {
+		if (oper[i] == tracker[1]) {
+			sign = true;
+			if (tracker[1] == "LT" || tracker[1] == "LE" || tracker[1] == "GT" || tracker[1] == "GE" || tracker[1] == "EQ" || tracker[1] == "NQ") {
+				num = true;
+			}
+			if (tracker[1] == "=") {
+				tracker[1] = "==";
+			}
+			break;
+		}
+	}
+	if (!sign) {
+		records = output;
+		return -1;
+	}
+	// checking second parameter
+	if (tracker[2] == "") {
+		records = output;
+		return -1;
+	}
+	if (num) {
+		for (int i = 0; i != tracker[2].length(); i++) {
+			if (!isdigit(tracker[2][i])) {
+				if (tracker[2][i] != '.') {
+					records = output;
+					return -1;
+				}
+			}
+		}
+	}
 
-int main() {
-	vector<string> cols = {
-		"customer", "product", "price", "location"
-	};
-	Table t("customer", cols);
-	assert(t.good());
-	assert(t.insert("Patel 12345 42.54 Westwood"));
-	assert(t.insert("O'Reilly 34567     4.99 Westwood   "));
-	assert(t.insert("   Hoang  12345 30.46 'Santa Monica' "));
-	assert(t.insert("Patel\t67890\t142.75  \t \t\t  \tHollywood"));
-	assert(!t.insert("Figueroa 54321 59.95"));
-	vector<vector<string>> v;
-	t.find("Patel", v);
-	assert(v.size() == 2);
-	vector<vector<string>> expected = {
-		{ "Patel", "12345", "42.54", "Westwood" },
-		{ "Patel", "67890", "142.75", "Hollywood" }
-	};
-	assert((v[0] == expected[0] && v[1] == expected[1]) ||
-		(v[0] == expected[1] && v[1] == expected[0]));
+	// Good Query String, now we query
+	int badcount = 0;
+	for (int i = 0; i != BUCKETS; i++) {
+		if (m_dict[i].size() != 0) {
+			for (auto it = m_dict[i].begin(); it != m_dict[i].end(); it++) {
+				bool found = false;
+				if (num) {
+					bool cont = true;
+					for (int i = 0; i != (*it)[col].length(); i++) {
+						if (!isdigit((*it)[col][i])) {
+							if ((*it)[col][i] != '.') {
+								cont = false;
+								badcount += 1;
+								break;
+							}
+						}
+					}
 
-	t.find("O'Reilly", v);
-	assert(v.size() == 1);
-	expected = {
-		{ "O'Reilly", "34567", "4.99", "Westwood" }
-	};
-	assert(v[0] == expected[0]);
+					if (cont) {
+						if (tracker[1] == "LT" && stof((*it)[col]) < stof(tracker[2])) {
+							found = true;
+						}
+						else if (tracker[1] == "LE" && stof((*it)[col]) <= stof(tracker[2])) {
+							found = true;
+						}
+						else if (tracker[1] == "GT" && stof((*it)[col]) > stof(tracker[2])) {
+							found = true;
+						}
+						else if (tracker[1] == "GE" && stof((*it)[col]) >= stof(tracker[2])) {
+							found = true;
+						}
+						else if (tracker[1] == "NE" && stof((*it)[col]) != stof(tracker[2])) {
+							found = true;
+						}
+						else if (tracker[1] == "EQ" && stof((*it)[col]) == stof(tracker[2])) {
+							found = true;
+						}
+					}
+				}
+				else {
+					if (tracker[1] == "<" && (*it)[col] < tracker[2]) {
+						found = true;
+					}
+					else if (tracker[1] == "<=" && (*it)[col] <= tracker[2]) {
+						found = true;
+					}
+					else if (tracker[1] == ">" && (*it)[col] > tracker[2]) {
+						found = true;
+					}
+					else if (tracker[1] == ">=" && (*it)[col] >= tracker[2]) {
+						found = true;
+					}
+					else if ((tracker[1] == "==" || tracker[1] == "=") && (*it)[col] == tracker[2]) {
+						found = true;
+					}
+				}
 
-	t.find("Hoang", v);
-	assert(v.size() == 1);
-	expected = {
-		{ "Hoang", "12345", "30.46", "Santa Monica" }
-	};
-	assert(v[0] == expected[0]);
-
-	t.find("Figueroa", v);
-	expected = {};
-	assert(v.size() == 0 && expected.size() == 0);
-	// t.select("", v);
-
-	vector<string> cols2 = { "N", "Z" };
-	Table t2("Z", cols2);
-	assert(t2.good());
-	assert(t2.insert("UCLA 90095"));
-	assert(t2.insert("Caltech 91125"));
-	vector<vector<string>> v2;
-	t2.find("90095", v2);
-	assert(v2.size() == 1);
-	assert(v2[0][0] == "UCLA" && v2[0][1] == "90095");
-
-	cerr << "All Tests Passed!" << endl;
+				if (found) {
+					vector<string> temp;
+					for (int i = 0; i != (*it).size(); i++) {
+						temp.push_back((*it)[i]);
+					}
+					output.push_back(temp);
+				}
+			}
+		}
+	}
+	records = output;
+	return badcount;
 }
